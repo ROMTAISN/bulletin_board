@@ -1,0 +1,31 @@
+{% extends 'flatpages/default.html' %}
+{% block title %}
+Create
+{% endblock title %}
+{% load static %}
+{% block extrahead %}{{ block.super }}
+<script src="{% static 'js/uploader.js' %}"></script>
+{{ media }}
+{% endblock %}
+
+{% block content %}
+
+<div class="card mb-3 border-0 nth-shadow">
+    <div class="card-body">
+        <div class="card-title nth-card-title">
+            <h1>Создание объявления</h1>
+        </div>
+<hr>
+<form method="post" action="{% url 'post_create' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {{ form.media }}
+    <div class="d-grid gap-2 d-md-block mt-2">
+    <button type="submit" class="btn btn-dark">Добавить статью</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,76 @@
+{% extends 'flatpages/default.html' %}
+{% load static %}
+{% block title %}
+Posts
+{% endblock title %}
+{% block extrahead %}{{ block.super }}
+<script src="{% static 'js/uploader.js' %}"></script>
+{{ media }}
+{% endblock %}
+
+{% block content %}
+
+{% if request.user.is_authenticated %}
+    <a href="{% url 'account_logout' %}">Выйти из аккаунта</a>
+{% else %}
+    <a href="{% url 'account_login' %}">Войти в аккаунт</a>
+{% endif %}
+<h1>Все объявления</h1>
+<h3>Количество: {{ posts|length }}</h3>
+<hr>
+{% if request.user.is_authenticated %}
+    <button>
+    <a class="nav-link" href="{% url 'post_create' %}">
+        <h4><strong>Добавить объявление</strong></h4>
+    </a>
+    </button>
+{% endif %}
+{% if posts %}
+    {% for post in posts %}
+    <div class="card mb-3">
+        <div class="row">
+
+            <div class="col-8">
+                <div class="card-body">
+                    <h5 class="card-title">Заголовок: <a href="{% url 'post' post.id %}"> {{ post.title }}</a></h5>
+                    <div class="card-subtitle">Автор: {{ post.author_post.username }}</div>
+                    <p class="card-text">{{ post.content|safe|linebreaks }}</p>
+                    Категория: <b>{{ post.category_post }}</b>
+                    <br>
+                    Дата создания: {{ post.date_time_create|date:'d M Y' }}
+                    <br>
+                    {% if request.user.is_authenticated %}
+                        {% if post.author_post == request.user %}
+
+                            <a href="{% url 'post_update' post.id %}">Изменить</a>
+                            <a href="{% url 'post_delete' post.id %}">Удалить</a>
+                        {% endif %}
+                    {% endif %}
+                  </div>
+                </div>
+            </div>
+      </div>
+    {% endfor %}
+{% else %}
+    <h2>Список объявлений пуст!</h2>
+{% endif %}
+{% if page_obj.has_previous %}
+    <a href="?page=1">1</a>
+
+    {% if page_obj.previous_page_number != 1 %}
+           ...
+           <a href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
+    {% endif %}
+{% endif %}
+
+{{ page_obj.number }}
+
+{% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
+    {% if paginator.num_pages != page_obj.next_page_number %}
+           ...
+        <a href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
+    {% endif %}
+{% endif %}
+
+{% endblock content %}

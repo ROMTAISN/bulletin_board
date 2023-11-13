@@ -1,0 +1,59 @@
+{% extends 'flatpages/default.html' %}
+
+
+{% block title %}
+Post
+{% endblock title %}
+{% load static %}
+{% block extrahead %}{{ block.super }}
+<script src="{% static 'js/uploader.js' %}"></script>
+{{ media }}
+{% endblock %}
+
+{% block content %}
+
+{% if request.user.is_authenticated %}
+<a href="{% url 'account_logout' %}" >Выйти из аккаунта</a>
+{% else %}
+    <a href="{% url 'account_login' %}">Войти в аккаунт</a>
+{% endif %}
+<br>
+<br>
+{% if perms.news.add_post %}
+    <a href="{% url 'post_create' %}">Добавить объявление</a>
+{% endif %}
+<h3>Заголовок: {{ post.title }}</h3>
+<h4>Дата публикации: {{ post.date_time_create|date:'d M Y' }}</h4>
+<h3>Автор: {{ post.author_post.username }}</h3>
+<h5>Категория: {{ post.category_post }}</h5>
+<b>Содержание:</b>
+<p>
+    {{ post.content|safe|linebreaks }}
+</p>
+{% if perms.news.change_post %}
+{% if post.author_post == request.user %}
+<a href="{% url 'post_update' post.id %}">Изменить</a>
+<br>
+<a href="{% url 'post_delete' post.id %}">Удалить</a>
+{% endif %}
+{% endif %}
+<hr>
+<h2> Отклики </h2>
+
+     {% if user.is_authenticated %}
+      <form action="" method="POST" id="main_form" class="comment_form">
+         <div>
+             <label>Введите Ваш отклик здесь: </label>
+            {{ response_form.res_content }} {% csrf_token %} <input type="submit" value=Отправить>
+         </div>
+         </div>
+      </form>
+      {% else %} <h2>Оставлять отклики могут только зарегистрированные пользователи!</h2>
+      {% endif %}
+
+      {% for response in responses %}
+         {% if response.status == True %}
+            <font size="4"> <b>{{ response.res_user }} : </b> {{ response.res_content }}</font><br>
+         {% endif %}
+      {% endfor %}
+{% endblock content %}
